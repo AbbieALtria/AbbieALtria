@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Job Openings</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #555; text-align: center; }
+        .job-posting { border: 1px solid #ddd; margin-bottom: 20px; padding: 15px; border-radius: 5px; background-color: #f9f9f9; }
+        .job-posting h2 { margin-top: 0; color: #0056b3; }
+        .job-posting p { margin-bottom: 10px; }
+        .job-posting .details { font-size: 0.9em; color: #555; }
+        .job-posting .description-snippet { margin-top: 5px; font-style: italic; }
+        .apply-link { display: inline-block; margin-top: 10px; padding: 8px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; }
+        .apply-link:hover { background-color: #0056b3; }
+        .no-jobs { text-align: center; color: #777; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Current Job Openings</h1>
+        {% if job_postings %}
+            {% for job in job_postings %}
+                <div class="job-posting">
+                    <h2>{{ job.job_title }}</h2>
+                    <p class="details"><strong>Department:</strong> {{ job.department }}</p>
+                    <p class="details"><strong>Location:</strong> {{ job.location }}</p>
+                    {% if job.schedule %}
+                        <p class="details"><strong>Schedule:</strong> {{ job.schedule }}</p>
+                    {% endif %}
+                    <p class="details"><strong>Application Deadline:</strong> {{ job.deadline_at|date:"F d, Y H:i" }}</p>
+                    <p class="description-snippet">
+                        <strong>Description (Snippet):</strong> {{ job.job_description|truncatechars:100 }}
+                    </p>
+                    <a href="{% url 'jobs:submit_application' job.id %}" class="apply-link">Apply Now</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-jobs">No job openings available at the moment. Please check back later.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicant Details - {{ applicant.full_name }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 900px; margin: auto; }
+        h1, h2 { color: #0056b3; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        h2 { border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 30px; }
+        .section { margin-bottom: 20px; }
+        .section p { margin: 5px 0; line-height: 1.6; }
+        .section strong { display: inline-block; width: 150px; color: #555; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .grid-item { background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #e0e0e0; }
+        .file-link { display: inline-block; margin-top: 5px; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; }
+        .file-link:hover { background-color: #0056b3; }
+        .applicant-photo { max-width: 200px; max-height: 200px; border-radius: 5px; border: 1px solid #ddd; margin-top: 10px; }
+        .list-item { border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px; }
+        .list-item:last-child { border-bottom: none; }
+        .back-link { display: inline-block; margin-top: 20px; padding: 10px 15px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; }
+        .back-link:hover { background-color: #5a6268; }
+        .actions { margin-top: 30px; padding: 15px; background-color: #e9ecef; border-radius: 5px; text-align: center; }
+        .actions h3 { margin-top: 0; color: #333; }
+        .actions p { color: #555; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Applicant Details: {{ applicant.full_name }}</h1>
+        <p style="text-align: center;">Applying for: <strong>{{ applicant.job_posting.job_title }}</strong></p>
+        <hr>
+
+        <div class="grid-container">
+            <div class="grid-item section">
+                <h2>Personal Information</h2>
+                <p><strong>Full Name:</strong> {{ applicant.full_name }}</p>
+                <p><strong>Email:</strong> {{ applicant.email }}</p>
+                <p><strong>Mobile:</strong> {{ applicant.mobile_number }}</p>
+                {% if applicant.whatsapp_number %}<p><strong>WhatsApp:</strong> {{ applicant.whatsapp_number }}</p>{% endif %}
+                {% if applicant.viber_number %}<p><strong>Viber:</strong> {{ applicant.viber_number }}</p>{% endif %}
+                {% if applicant.gender %}<p><strong>Gender:</strong> {{ applicant.gender }}</p>{% endif %}
+                {% if applicant.date_of_birth %}<p><strong>Date of Birth:</strong> {{ applicant.date_of_birth|date:"F d, Y" }}</p>{% endif %}
+                {% if applicant.marital_status %}<p><strong>Marital Status:</strong> {{ applicant.marital_status }}</p>{% endif %}
+            </div>
+
+            <div class="grid-item section">
+                <h2>Address</h2>
+                <p><strong>Street:</strong> {{ applicant.street }}</p>
+                <p><strong>Barangay:</strong> {{ applicant.barangay }}</p>
+                <p><strong>City:</strong> {{ applicant.city }}</p>
+                <p><strong>Province:</strong> {{ applicant.province }}</p>
+                <p><strong>Country:</strong> {{ applicant.country }}</p>
+                <p><strong>Postal Code:</strong> {{ applicant.postal_code }}</p>
+            </div>
+
+            {% if applicant.facebook_url or applicant.linkedin_url or applicant.instagram_url or applicant.tiktok_url %}
+            <div class="grid-item section">
+                <h2>Social Media</h2>
+                {% if applicant.facebook_url %}<p><strong>Facebook:</strong> <a href="{{ applicant.facebook_url }}" target="_blank">{{ applicant.facebook_url }}</a></p>{% endif %}
+                {% if applicant.linkedin_url %}<p><strong>LinkedIn:</strong> <a href="{{ applicant.linkedin_url }}" target="_blank">{{ applicant.linkedin_url }}</a></p>{% endif %}
+                {% if applicant.instagram_url %}<p><strong>Instagram:</strong> <a href="{{ applicant.instagram_url }}" target="_blank">{{ applicant.instagram_url }}</a></p>{% endif %}
+                {% if applicant.tiktok_url %}<p><strong>TikTok:</strong> <a href="{{ applicant.tiktok_url }}" target="_blank">{{ applicant.tiktok_url }}</a></p>{% endif %}
+            </div>
+            {% endif %}
+
+            <div class="grid-item section">
+                <h2>Application Details</h2>
+                <p><strong>Status:</strong> {{ applicant.status }}</p>
+                <p><strong>Applied At:</strong> {{ applicant.applied_at|date:"F d, Y H:i" }}</p>
+                {% if applicant.join_availability %}<p><strong>Availability:</strong> {{ applicant.get_join_availability_display }}</p>{% endif %}
+                
+                {% if applicant.resume_file %}
+                    <p><strong>Resume:</strong> <a href="{{ applicant.resume_file.url }}" target="_blank" class="file-link">View/Download Resume</a></p>
+                {% else %}
+                    <p><strong>Resume:</strong> Not provided</p>
+                {% endif %}
+                
+                {% if applicant.photo_file %}
+                    <p><strong>Photo:</strong></p>
+                    <img src="{{ applicant.photo_file.url }}" alt="{{ applicant.full_name }}'s photo" class="applicant-photo">
+                {% else %}
+                     <p><strong>Photo:</strong> Not provided</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if education_history %}
+        <div class="section">
+            <h2>Education History</h2>
+            {% for edu in education_history %}
+                <div class="list-item">
+                    <p><strong>School:</strong> {{ edu.school }}</p>
+                    <p><strong>Subject/Degree:</strong> {{ edu.subject_studied }}</p>
+                    {% if edu.year_graduated %}<p><strong>Year Graduated:</strong> {{ edu.year_graduated }}</p>{% endif %}
+                </div>
+            {% empty %}
+                <p>No education history provided.</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if experience_history %}
+        <div class="section">
+            <h2>Work Experience</h2>
+            {% for exp in experience_history %}
+                <div class="list-item">
+                    <p><strong>Company:</strong> {{ exp.company }}</p>
+                    <p><strong>Job Title:</strong> {{ exp.job_title }}</p>
+                    <p><strong>Dates:</strong> {{ exp.start_date|date:"F Y" }} - {% if exp.end_date %}{{ exp.end_date|date:"F Y" }}{% else %}Present{% endif %}</p>
+                    {% if exp.description %}<p><strong>Description:</strong><br>{{ exp.description|linebreaksbr }}</p>{% endif %}
+                </div>
+            {% empty %}
+                <p>No work experience provided.</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if languages %}
+        <div class="section">
+            <h2>Language Proficiency</h2>
+            {% for lang in languages %}
+                <div class="list-item">
+                    <p><strong>Language:</strong> {{ lang.language_name }}</p>
+                    <p><strong>Proficiency (CEFR):</strong> {{ lang.get_cefr_level_display }}</p>
+                </div>
+            {% empty %}
+                <p>No language proficiency information provided.</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="actions">
+            <h3>Recruiter Actions</h3>
+            <p>(Placeholders for future actions like "Update Status" or "Schedule Interview")</p>
+            <!-- Example: <a href="#" class="file-link">Update Status</a> -->
+        </div>
+
+        <a href="{% url 'jobs:recruiter_dashboard' %}" class="back-link">Back to Dashboard</a>
+    </div>
+</body>
+</html>

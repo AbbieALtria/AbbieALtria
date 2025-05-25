@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for {{ job_posting.job_title }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
+        h1 { color: #0056b3; text-align: center; }
+        h2 { color: #333; margin-top: 30px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        form p { margin-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="email"], input[type="url"], input[type="date"], input[type="file"], select, textarea {
+            width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;
+        }
+        textarea { min-height: 80px; }
+        .formset-section { margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 4px; background-color: #f9f9f9; }
+        .formset-item { padding: 10px; border-bottom: 1px dashed #ccc; margin-bottom: 10px; }
+        .formset-item:last-child { border-bottom: none; }
+        .delete-checkbox label { font-weight: normal; display: inline; margin-left: 5px;}
+        .button-container { text-align: center; margin-top: 20px; }
+        button[type="submit"] { background-color: #007bff; color: white; padding: 12px 25px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; }
+        button[type="submit"]:hover { background-color: #0056b3; }
+        .errorlist { color: red; font-size: 0.9em; list-style-type: none; padding: 0; }
+        .form-field-errors { color: red; font-size: 0.8em; margin-top: -5px; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Apply for: {{ job_posting.job_title }}</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <h2>Applicant Information</h2>
+            {{ applicant_form.management_form }}
+            {% for field in applicant_form %}
+                <p>
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}<small style="color: grey">{{ field.help_text }}</small>{% endif %}
+                    {% for error in field.errors %}<div class="form-field-errors">{{ error }}</div>{% endfor %}
+                </p>
+            {% endfor %}
+            {% for error in applicant_form.non_field_errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+
+
+            <h2>Education History</h2>
+            {{ education_formset.management_form }}
+            {% for form in education_formset %}
+                <div class="formset-item">
+                    {{ form.id }}
+                    {% for field in form %}
+                        <p>
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}<small style="color: grey">{{ field.help_text }}</small>{% endif %}
+                            {% for error in field.errors %}<div class="form-field-errors">{{ error }}</div>{% endfor %}
+                        </p>
+                    {% endfor %}
+                     {% if form.instance.pk and education_formset.can_delete %}
+                        <p>{{ form.DELETE.label_tag }} {{ form.DELETE }}</p>
+                    {% endif %}
+                    {% for error in form.non_field_errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+                </div>
+            {% endfor %}
+            {% for error in education_formset.non_form_errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+
+            <h2>Work Experience</h2>
+            {{ experience_formset.management_form }}
+            {% for form in experience_formset %}
+                <div class="formset-item">
+                    {{ form.id }}
+                    {% for field in form %}
+                        <p>
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}<small style="color: grey">{{ field.help_text }}</small>{% endif %}
+                            {% for error in field.errors %}<div class="form-field-errors">{{ error }}</div>{% endfor %}
+                        </p>
+                    {% endfor %}
+                    {% if form.instance.pk and experience_formset.can_delete %}
+                        <p>{{ form.DELETE.label_tag }} {{ form.DELETE }}</p>
+                    {% endif %}
+                    {% for error in form.non_field_errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+                </div>
+            {% endfor %}
+            {% for error in experience_formset.non_form_errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+
+            <h2>Language Proficiency</h2>
+            {{ language_formset.management_form }}
+            {% for form in language_formset %}
+                <div class="formset-item">
+                    {{ form.id }}
+                    {% for field in form %}
+                        <p>
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}<small style="color: grey">{{ field.help_text }}</small>{% endif %}
+                            {% for error in field.errors %}<div class="form-field-errors">{{ error }}</div>{% endfor %}
+                        </p>
+                    {% endfor %}
+                    {% if form.instance.pk and language_formset.can_delete %}
+                        <p>{{ form.DELETE.label_tag }} {{ form.DELETE }}</p>
+                    {% endif %}
+                    {% for error in form.non_field_errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+                </div>
+            {% endfor %}
+            {% for error in language_formset.non_form_errors %}<div class="errorlist">{{ error }}</div>{% endfor %}
+
+            <div class="button-container">
+                <button type="submit">Submit Application</button>
+            </div>
+        </form>
+    </div>
+    {# Add JavaScript for dynamic formset handling if needed #}
+</body>
+</html>
