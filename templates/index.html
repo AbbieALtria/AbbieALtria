@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Applicant Submission Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Applicant Submission Form</h1>
+
+    {% if errors.duplicate %}
+        <div class="error-summary" style="color:red; border: 1px solid red; padding: 10px; margin-bottom: 15px;">
+            {{ errors.duplicate }}
+        </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('submit_application') }}"
+          data-form-country="{{ form_data.country or '' }}"
+          data-form-province="{{ form_data.province or '' }}"
+          data-form-city="{{ form_data.city or '' }}"
+          enctype="multipart/form-data">
+        <fieldset>
+            <legend>Personal Information</legend>
+
+            <label for="fullName">Full Name:</label><br>
+            <input type="text" id="fullName" name="fullName" value="{{ form_data.fullName or '' }}" required>
+            {% if errors.fullName %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.fullName }}</span>{% endif %}<br><br>
+
+            <label for="dob">Date of Birth:</label><br>
+            <input type="date" id="dob" name="dob" value="{{ form_data.dob or '' }}" required><span id="dobError" style="color:red; font-size:0.8em;"></span>
+            {% if errors.dob %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.dob }}</span>{% endif %}<br><br>
+
+            <label for="gender">Gender:</label><br>
+            <select id="gender" name="gender">
+                <option value="male" {% if form_data.gender == 'male' %}selected{% endif %}>Male</option>
+                <option value="female" {% if form_data.gender == 'female' %}selected{% endif %}>Female</option>
+                <option value="other" {% if form_data.gender == 'other' %}selected{% endif %}>Other</option>
+                <option value="prefer_not_to_say" {% if form_data.gender == 'prefer_not_to_say' %}selected{% endif %}>Prefer not to say</option>
+            </select><br><br>
+
+            <label for="maritalStatus">Marital Status:</label><br>
+            <select id="maritalStatus" name="maritalStatus">
+                <option value="single" {% if form_data.maritalStatus == 'single' %}selected{% endif %}>Single</option>
+                <option value="married" {% if form_data.maritalStatus == 'married' %}selected{% endif %}>Married</option>
+                <option value="divorced" {% if form_data.maritalStatus == 'divorced' %}selected{% endif %}>Divorced</option>
+                <option value="widowed" {% if form_data.maritalStatus == 'widowed' %}selected{% endif %}>Widowed</option>
+            </select><br><br>
+
+            <label for="mobile">Mobile:</label><br>
+            <input type="tel" id="mobile" name="mobile" value="{{ form_data.mobile or '' }}" pattern="[0-9]+" title="Please enter numbers only." required>
+            {% if errors.mobile %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.mobile }}</span>{% endif %}<br><br>
+
+            <label for="viber">Viber:</label><br>
+            <input type="tel" id="viber" name="viber" value="{{ form_data.viber or '' }}" pattern="[0-9]*" title="Please enter numbers only if you have a Viber number.">
+            {% if errors.viber %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.viber }}</span>{% endif %}<br><br>
+
+            <label for="whatsapp">WhatsApp:</label><br>
+            <input type="tel" id="whatsapp" name="whatsapp" value="{{ form_data.whatsapp or '' }}" pattern="[0-9]*" title="Please enter numbers only if you have a WhatsApp number.">
+            {% if errors.whatsapp %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.whatsapp }}</span>{% endif %}<br><br>
+
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" value="{{ form_data.email or '' }}" required>
+            {% if errors.email %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.email }}</span>{% endif %}<br><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Address</legend>
+
+            <label for="country">Country:</label><br>
+            <select id="country" name="country">
+                <!-- Options will be populated by JavaScript, or a default static one -->
+                 <option value="Philippines" {% if (form_data.country or 'Philippines') == 'Philippines' %}selected{% endif %}>Philippines</option>
+                <!-- Other countries can be added here if needed, or loaded via JS -->
+            </select>
+            {% if errors.country %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.country }}</span>{% endif %}<br><br>
+
+            <label for="province">Province:</label><br>
+            <select id="province" name="province">
+                <option value="" disabled selected>Select Province</option>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+            {% if errors.province %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.province }}</span>{% endif %}<br><br>
+
+            <label for="city">City/Municipality:</label><br>
+            <select id="city" name="city">
+                <option value="" disabled selected>Select City/Municipality</option>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+            {% if errors.city %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.city }}</span>{% endif %}<br><br>
+
+            <label for="barangay">Barangay:</label><br>
+            <input type="text" id="barangay" name="barangay" value="{{ form_data.barangay or '' }}">
+            {% if errors.barangay %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.barangay }}</span>{% endif %}<br><br>
+
+            <label for="postalCode">Postal Code:</label><br>
+            <input type="text" id="postalCode" name="postalCode" value="{{ form_data.postalCode or '' }}" pattern="[0-9]*" title="Please enter numbers only for Postal Code.">
+            {% if errors.postalCode %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.postalCode }}</span>{% endif %}<br><br>
+
+        </fieldset>
+
+        <fieldset>
+            <legend>Education</legend>
+            <div id="education_entries_container">
+                {% if form_data.education and form_data.education | length > 0 %}
+                    {% for edu_entry in form_data.education %}
+                    <div class="education_entry" data-index="{{ loop.index0 }}">
+                        <label for="education[{{ loop.index0 }}][school_name]">School Name:</label><br>
+                        <input type="text" name="education[{{ loop.index0 }}][school_name]" value="{{ edu_entry.school_name or '' }}" required>
+                        {% if errors.education and errors.education[loop.index0] and errors.education[loop.index0].school_name %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.education[loop.index0].school_name }}</span>
+                        {% endif %}<br><br>
+
+                        <label for="education[{{ loop.index0 }}][subject_studied]">Subject Studied:</label><br>
+                        <input type="text" name="education[{{ loop.index0 }}][subject_studied]" value="{{ edu_entry.subject_studied or '' }}">
+                        {% if errors.education and errors.education[loop.index0] and errors.education[loop.index0].subject_studied %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.education[loop.index0].subject_studied }}</span>
+                        {% endif %}<br><br>
+
+                        <label for="education[{{ loop.index0 }}][school_year_from]">School Year (From):</label><br>
+                        <input type="date" name="education[{{ loop.index0 }}][school_year_from]" value="{{ edu_entry.school_year_from or '' }}" required>
+                        {% if errors.education and errors.education[loop.index0] and errors.education[loop.index0].school_year_from %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.education[loop.index0].school_year_from }}</span>
+                        {% endif %}<br><br>
+
+                        <label for="education[{{ loop.index0 }}][school_year_to]">School Year (To):</label><br>
+                        <input type="date" name="education[{{ loop.index0 }}][school_year_to]" value="{{ edu_entry.school_year_to or '' }}" required>
+                        {% if errors.education and errors.education[loop.index0] and errors.education[loop.index0].school_year_to %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.education[loop.index0].school_year_to }}</span>
+                        {% endif %}<br><br>
+
+                        <label for="education[{{ loop.index0 }}][education_level]">Education Level:</label><br>
+                        <select name="education[{{ loop.index0 }}][education_level]" required>
+                            <option value="" disabled {% if not edu_entry.education_level %}selected{% endif %}>Select Level</option>
+                            <option value="High School" {% if edu_entry.education_level == 'High School' %}selected{% endif %}>High School</option>
+                            <option value="Senior High School" {% if edu_entry.education_level == 'Senior High School' %}selected{% endif %}>Senior High School</option>
+                            <option value="College" {% if edu_entry.education_level == 'College' %}selected{% endif %}>College (Non-degree)</option>
+                            <option value="Bachelor's" {% if edu_entry.education_level == "Bachelor's" %}selected{% endif %}>Bachelor’s Degree</option>
+                            <option value="Master's" {% if edu_entry.education_level == "Master's" %}selected{% endif %}>Master’s Degree</option>
+                            <option value="PhD" {% if edu_entry.education_level == "PhD" %}selected{% endif %}>PhD</option>
+                        </select>
+                        {% if errors.education and errors.education[loop.index0] and errors.education[loop.index0].education_level %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.education[loop.index0].education_level }}</span>
+                        {% endif %}<br><br>
+
+                        <button type="button" class="remove_education_entry">Remove</button>
+                        <hr>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Initial Education Entry if no form_data.education or it's empty -->
+                    <div class="education_entry" data-index="0">
+                        <label for="education[0][school_name]">School Name:</label><br>
+                        <input type="text" name="education[0][school_name]" required><br><br>
+
+                        <label for="education[0][subject_studied]">Subject Studied:</label><br>
+                        <input type="text" name="education[0][subject_studied]"><br><br>
+
+                        <label for="education[0][school_year_from]">School Year (From):</label><br>
+                        <input type="date" name="education[0][school_year_from]" required><br><br>
+
+                        <label for="education[0][school_year_to]">School Year (To):</label><br>
+                        <input type="date" name="education[0][school_year_to]" required><br><br>
+
+                        <label for="education[0][education_level]">Education Level:</label><br>
+                        <select name="education[0][education_level]" required>
+                            <option value="" disabled selected>Select Level</option>
+                            <option value="High School">High School</option>
+                            <option value="Senior High School">Senior High School</option>
+                            <option value="College">College (Non-degree)</option>
+                            <option value="Bachelor's">Bachelor’s Degree</option>
+                            <option value="Master's">Master’s Degree</option>
+                            <option value="PhD">PhD</option>
+                        </select><br><br>
+
+                        <button type="button" class="remove_education_entry">Remove</button>
+                        <hr>
+                    </div>
+                {% endif %}
+            </div>
+            <button type="button" id="add_education_button">Add Another Education</button>
+        </fieldset>
+
+        <fieldset>
+            <legend>Work Experience</legend>
+            <div id="experience_entries_container">
+                {% if form_data.experience and form_data.experience | length > 0 %}
+                    {% for exp_entry in form_data.experience %}
+                    <div class="experience_entry" data-index="{{ loop.index0 }}">
+                        <label for="experience[{{ loop.index0 }}][company_name]">Company Name:</label><br>
+                        <input type="text" name="experience[{{ loop.index0 }}][company_name]" value="{{ exp_entry.company_name or '' }}">
+                        {% if errors.experience and errors.experience[loop.index0] and errors.experience[loop.index0].company_name %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.experience[loop.index0].company_name }}</span>
+                        {% endif %}<br><br>
+
+                        <label for="experience[{{ loop.index0 }}][job_title]">Job Title:</label><br>
+                        <input type="text" name="experience[{{ loop.index0 }}][job_title]" value="{{ exp_entry.job_title or '' }}">
+                        {% if errors.experience and errors.experience[loop.index0] and errors.experience[loop.index0].job_title %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.experience[loop.index0].job_title }}</span>
+                        {% endif %}<br><br>
+
+                        <label for="experience[{{ loop.index0 }}][from_date]">From Date:</label><br>
+                        <input type="date" name="experience[{{ loop.index0 }}][from_date]" value="{{ exp_entry.from_date or '' }}">
+                        {% if errors.experience and errors.experience[loop.index0] and errors.experience[loop.index0].from_date %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.experience[loop.index0].from_date }}</span>
+                        {% endif %}<br><br>
+
+                        <label for="experience[{{ loop.index0 }}][to_date]">To Date:</label><br>
+                        <input type="date" name="experience[{{ loop.index0 }}][to_date]" value="{{ exp_entry.to_date or '' }}">
+                        {% if errors.experience and errors.experience[loop.index0] and errors.experience[loop.index0].to_date %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.experience[loop.index0].to_date }}</span>
+                        {% endif %}<br><br>
+
+                        <button type="button" class="remove_experience_entry">Remove</button>
+                        <hr>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Initial Experience Entry if no form_data.experience or it's empty -->
+                    <div class="experience_entry" data-index="0">
+                        <label for="experience[0][company_name]">Company Name:</label><br>
+                        <input type="text" name="experience[0][company_name]"><br><br>
+
+                        <label for="experience[0][job_title]">Job Title:</label><br>
+                        <input type="text" name="experience[0][job_title]"><br><br>
+
+                        <label for="experience[0][from_date]">From Date:</label><br>
+                        <input type="date" name="experience[0][from_date]"><br><br>
+
+                        <label for="experience[0][to_date]">To Date:</label><br>
+                        <input type="date" name="experience[0][to_date]"><br><br>
+
+                        <button type="button" class="remove_experience_entry">Remove</button>
+                        <hr>
+                    </div>
+                {% endif %}
+            </div>
+            <button type="button" id="add_experience_button">Add Another Experience</button>
+        </fieldset>
+
+        <fieldset>
+            <legend>Languages</legend>
+            {% if errors.language_general %}
+                <span class="error" style="color:red; font-size:0.8em; display:block; margin-bottom:10px;">{{ errors.language_general }}</span>
+            {% endif %}
+            <div id="language_entries_container">
+                {% if form_data.language and form_data.language | length > 0 %}
+                    {% for lang_entry in form_data.language %}
+                    <div class="language_entry" data-index="{{ loop.index0 }}">
+                        <label for="language[{{ loop.index0 }}][name]">Language:</label><br>
+                        <select name="language[{{ loop.index0 }}][name]" required>
+                            <option value="" disabled {% if not lang_entry.name %}selected{% endif %}>Select Language</option>
+                            <option value="English" {% if lang_entry.name == 'English' %}selected{% endif %}>English</option>
+                            <option value="Spanish" {% if lang_entry.name == 'Spanish' %}selected{% endif %}>Spanish</option>
+                            <option value="Turkish" {% if lang_entry.name == 'Turkish' %}selected{% endif %}>Turkish</option>
+                            <option value="Italian" {% if lang_entry.name == 'Italian' %}selected{% endif %}>Italian</option>
+                            <option value="German" {% if lang_entry.name == 'German' %}selected{% endif %}>German</option>
+                            <option value="Arabic" {% if lang_entry.name == 'Arabic' %}selected{% endif %}>Arabic</option>
+                            <option value="Tagalog" {% if lang_entry.name == 'Tagalog' %}selected{% endif %}>Tagalog</option>
+                            <option value="Urdu" {% if lang_entry.name == 'Urdu' %}selected{% endif %}>Urdu</option>
+                            <option value="Hindi" {% if lang_entry.name == 'Hindi' %}selected{% endif %}>Hindi</option>
+                            <option value="Bisaya" {% if lang_entry.name == 'Bisaya' %}selected{% endif %}>Bisaya</option>
+                            <option value="Ilonggo" {% if lang_entry.name == 'Ilonggo' %}selected{% endif %}>Ilonggo</option>
+                            <option value="Other" {% if lang_entry.name == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                        {% if errors.language and errors.language[loop.index0] and errors.language[loop.index0].name %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.language[loop.index0].name }}</span>
+                        {% endif %}<br><br>
+
+                        <label for="language[{{ loop.index0 }}][fluency]">Fluency:</label><br>
+                        <select name="language[{{ loop.index0 }}][fluency]" required>
+                            <option value="" disabled {% if not lang_entry.fluency %}selected{% endif %}>Select Fluency</option>
+                            <option value="Native" {% if lang_entry.fluency == 'Native' %}selected{% endif %}>Native</option>
+                            <option value="Intermediate" {% if lang_entry.fluency == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                            <option value="Beginner" {% if lang_entry.fluency == 'Beginner' %}selected{% endif %}>Beginner</option>
+                            <option value="A1" {% if lang_entry.fluency == 'A1' %}selected{% endif %}>A1</option>
+                            <option value="A2" {% if lang_entry.fluency == 'A2' %}selected{% endif %}>A2</option>
+                            <option value="B1" {% if lang_entry.fluency == 'B1' %}selected{% endif %}>B1</option>
+                            <option value="B2" {% if lang_entry.fluency == 'B2' %}selected{% endif %}>B2</option>
+                            <option value="C1" {% if lang_entry.fluency == 'C1' %}selected{% endif %}>C1</option>
+                            <option value="C2" {% if lang_entry.fluency == 'C2' %}selected{% endif %}>C2</option>
+                        </select>
+                        {% if errors.language and errors.language[loop.index0] and errors.language[loop.index0].fluency %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.language[loop.index0].fluency }}</span>
+                        {% endif %}<br><br>
+
+                        <button type="button" class="remove_language_entry">Remove</button>
+                        <hr>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Initial Language Entry if no form_data.language or it's empty -->
+                    <div class="language_entry" data-index="0">
+                        <label for="language[0][name]">Language:</label><br>
+                        <select name="language[0][name]" required>
+                            <option value="" disabled selected>Select Language</option>
+                            <option value="English">English</option>
+                            <option value="Spanish">Spanish</option>
+                            <option value="Turkish">Turkish</option>
+                            <option value="Italian">Italian</option>
+                            <option value="German">German</option>
+                            <option value="Arabic">Arabic</option>
+                            <option value="Tagalog">Tagalog</option>
+                            <option value="Urdu">Urdu</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="Bisaya">Bisaya</option>
+                            <option value="Ilonggo">Ilonggo</option>
+                            <option value="Other">Other</option>
+                        </select><br><br>
+
+                        <label for="language[0][fluency]">Fluency:</label><br>
+                        <select name="language[0][fluency]" required>
+                            <option value="" disabled selected>Select Fluency</option>
+                            <option value="Native">Native</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="A1">A1</option>
+                            <option value="A2">A2</option>
+                            <option value="B1">B1</option>
+                            <option value="B2">B2</option>
+                            <option value="C1">C1</option>
+                            <option value="C2">C2</option>
+                        </select><br><br>
+
+                        <button type="button" class="remove_language_entry">Remove</button>
+                        <hr>
+                    </div>
+                {% endif %}
+            </div>
+            <button type="button" id="add_language_button">Add Another Language</button>
+        </fieldset>
+
+        <fieldset>
+            <legend>Social Media Accounts</legend>
+            <div id="social_media_entries_container">
+                {% if form_data.social_media and form_data.social_media | length > 0 %}
+                    {% for sm_entry in form_data.social_media %}
+                    <div class="social_media_entry" data-index="{{ loop.index0 }}">
+                        <label for="social_media[{{ loop.index0 }}][platform]">Platform:</label><br>
+                        <select name="social_media[{{ loop.index0 }}][platform]" required>
+                            <option value="" disabled {% if not sm_entry.platform %}selected{% endif %}>Select Platform</option>
+                            <option value="Facebook" {% if sm_entry.platform == 'Facebook' %}selected{% endif %}>Facebook</option>
+                            <option value="LinkedIn" {% if sm_entry.platform == 'LinkedIn' %}selected{% endif %}>LinkedIn</option>
+                            <option value="Twitter (X)" {% if sm_entry.platform == 'Twitter (X)' %}selected{% endif %}>Twitter (X)</option>
+                            <option value="Instagram" {% if sm_entry.platform == 'Instagram' %}selected{% endif %}>Instagram</option>
+                            <option value="Reddit" {% if sm_entry.platform == 'Reddit' %}selected{% endif %}>Reddit</option>
+                            <option value="TikTok" {% if sm_entry.platform == 'TikTok' %}selected{% endif %}>TikTok</option>
+                        </select>
+                        {% if errors.social_media and errors.social_media[loop.index0] and errors.social_media[loop.index0].platform %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.social_media[loop.index0].platform }}</span>
+                        {% endif %}<br><br>
+
+                        <label for="social_media[{{ loop.index0 }}][profile_link]">Profile Link:</label><br>
+                        <input type="url" name="social_media[{{ loop.index0 }}][profile_link]" value="{{ sm_entry.profile_link or '' }}" placeholder="https://example.com/profile">
+                        {% if errors.social_media and errors.social_media[loop.index0] and errors.social_media[loop.index0].profile_link %}
+                            <span class="error" style="color:red; font-size:0.8em;">{{ errors.social_media[loop.index0].profile_link }}</span>
+                        {% endif %}<br><br>
+
+                        <button type="button" class="remove_social_media_entry">Remove</button>
+                        <hr>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                <!-- Entries will also be added here by JavaScript if the above block is empty -->
+            </div>
+            <button type="button" id="add_social_media_button">Add Social Media Account</button>
+        </fieldset>
+
+        <fieldset>
+            <legend>Other Information</legend>
+
+            <label for="resume">Resume (.pdf, .doc, .docx):</label><br>
+            <input type="file" name="resume" id="resume" accept=".pdf,.doc,.docx" required>
+            {% if errors.resume %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.resume }}</span>{% endif %}
+            {% if errors.resume_type %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.resume_type }}</span>{% endif %}
+            {% if errors.resume_save %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.resume_save }}</span>{% endif %}<br><br>
+
+            <label for="photo">Photo (.jpg, .jpeg, .png):</label><br>
+            <input type="file" name="photo" id="photo" accept=".jpg,.jpeg,.png" required>
+            {% if errors.photo %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.photo }}</span>{% endif %}
+            {% if errors.photo_type %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.photo_type }}</span>{% endif %}
+            {% if errors.photo_save %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.photo_save }}</span>{% endif %}<br><br>
+
+            <label for="join_availability">Join Availability:</label><br>
+            <select name="join_availability" id="join_availability" required>
+                <option value="" disabled {% if not form_data.join_availability %}selected{% endif %}>-- Select Availability --</option>
+                <option value="Immediate" {% if form_data.join_availability == 'Immediate' %}selected{% endif %}>Immediate</option>
+                <option value="1 week" {% if form_data.join_availability == '1 week' %}selected{% endif %}>1 week</option>
+                <option value="2 weeks" {% if form_data.join_availability == '2 weeks' %}selected{% endif %}>2 weeks</option>
+                <option value="1 month" {% if form_data.join_availability == '1 month' %}selected{% endif %}>1 month</option>
+            </select>
+            {% if errors.join_availability %}<span class="error" style="color:red; font-size:0.8em;">{{ errors.join_availability }}</span>{% endif %}<br><br>
+
+        </fieldset>
+
+        <button type="submit">Submit Form</button>
+    </form>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Pass form_data to JavaScript for dynamic dropdown repopulation
+        const formDataFromServer = {
+            country: "{{ form_data.country or '' }}",
+            province: "{{ form_data.province or '' }}",
+            city: "{{ form_data.city or '' }}"
+        };
+
+        // Initialize educationEntryIndex based on server-rendered entries
+        // This must be accessible by the external static/js/script.js
+        // So, ensure educationEntryIndex is declared globally in static/js/script.js (e.g., let educationEntryIndex;)
+        educationEntryIndex = {{ form_data.education | length if form_data.education else 1 }};
+        experienceEntryIndex = {{ form_data.experience | length if form_data.experience else 1 }};
+        languageEntryIndex = {{ form_data.language | length if form_data.language else 1 }};
+        socialMediaEntryIndex = {{ form_data.social_media | length if form_data.social_media else 0 }};
+        // No client-side index needed for Other Information as it's not dynamic in that way
+    </script>
+</body>
+</html>

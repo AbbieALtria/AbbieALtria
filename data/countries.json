@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Philippines",
+    "provinces": [
+      {
+        "name": "Metro Manila",
+        "cities": ["Manila", "Quezon City", "Makati", "Pasig", "Taguig"]
+      },
+      {
+        "name": "Cebu",
+        "cities": ["Cebu City", "Mandaue City", "Lapu-Lapu City", "Talisay City"]
+      },
+      {
+        "name": "Davao del Sur",
+        "cities": ["Davao City", "Digos City", "Santa Cruz", "Bansalan"]
+      },
+      {
+        "name": "Pampanga",
+        "cities": ["Angeles City", "San Fernando City", "Mabalacat City"]
+      },
+      {
+        "name": "Laguna",
+        "cities": ["Calamba City", "Santa Rosa City", "Biñan City", "San Pablo City"]
+      }
+    ]
+  }
+]

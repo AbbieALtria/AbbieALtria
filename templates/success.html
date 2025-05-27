@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submission Successful</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body { text-align: center; padding-top: 50px; }
+        .success-message { color: green; font-size: 1.5em; margin-bottom: 20px; }
+        .home-link { font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <div class="success-message">
+        Application Submitted Successfully! Thank you.
+    </div>
+    <a href="{{ url_for('index') }}" class="home-link">Submit Another Application</a>
+</body>
+</html>
